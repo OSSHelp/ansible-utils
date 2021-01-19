@@ -1,0 +1,8 @@
+---
+- name: install packages
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    cache_valid_time: 86400
+  loop:
+    "{{ utils_packages | union(utils_custom_packages) }}"

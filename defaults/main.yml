@@ -1,0 +1,45 @@
+---
+utils_setup: full
+
+utils_apt:
+  disable_install_recomends: true
+
+utils_cloudinit:
+  disable_users: true
+
+utils_dpkg:
+  enable_manpages: false
+
+utils_tweaks:
+  motd_warning: true
+  motd_color: '\033[1m\033[31m'
+  motd_reset: '\033[0m\033[97m'
+
+utils_packages:
+  - bash-completion
+  - cron
+  - curl
+  - dnsutils
+  - iproute2
+  - iputils-ping
+  - less
+  - logrotate
+  - lsof
+  - mc
+  - mtr-tiny
+  - nano
+  - ncurses-term
+  - netcat
+  - net-tools
+  - pbzip2
+  - rsync
+  - screen
+  - strace
+  - sysstat
+  - tcpdump
+  - telnet
+  - tmux
+  - unzip
+  - wget
+
+utils_custom_packages: []

@@ -1,0 +1,60 @@
+---
+- name: gather required facts
+  setup:
+    gather_subset: [virtual]
+  when: ansible_virtualization_type is not defined
+
+- name: disable install recommends and suggests by apt
+  copy:
+    src: apt/99custom
+    dest: /etc/apt/apt.conf.d/99custom
+    mode: 0644
+    owner: root
+    group: root
+  when: utils_apt['disable_install_recomends']
+
+- name: disable cloudinit users
+  copy:
+    src: cloudinit/nousers.cfg
+    dest: /etc/cloud/cloud.cfg.d/99_nousers.cfg
+    mode: 0644
+    owner: root
+    group: root
+  when: utils_cloudinit['disable_users'] and ansible_virtualization_type == 'lxc'
+
+- name: ensure manpages aren't skipped by dpkg
+  lineinfile:
+    path: /etc/dpkg/dpkg.cfg.d/excludes
+    regexp: '^path-exclude=/usr/share/man/'
+    state: absent
+  when: utils_dpkg['enable_manpages']
+
+- name: warning in /etc/motd
+  template:
+    src: motd-warning.j2
+    dest: /etc/motd
+  when: utils_tweaks['motd_warning']
+
+- name: prepare ini-config for MC
+  block:
+    - name: create dir for MC
+      file:
+        path: /root/.config/mc
+        state: directory
+        mode: 0700
+
+    - name: сheck current MC config
+      lineinfile:
+        name: /root/.config/mc/ini
+        regexp: "navigate_with_arrows=true"
+        state: absent
+      check_mode: yes
+      changed_when: false
+      register: mc_cfg_check
+
+    - name: place ini-config for MC
+      template:
+        src: mc_ini.j2
+        dest: /root/.config/mc/ini
+      when: mc_cfg_check.found is not defined or not mc_cfg_check.found
+  when: "'mc' in utils_packages or 'mc' in utils_custom_packages"
